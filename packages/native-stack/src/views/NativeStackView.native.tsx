@@ -404,7 +404,7 @@ function NativeStackViewInner({ state, navigation, descriptors }: Props) {
           return (
             <SceneView
               key={route.key}
-              hidden={index >= state.routes.length}
+              hidden={index < 0}
               index={index}
               focused={isFocused}
               descriptor={descriptor}
