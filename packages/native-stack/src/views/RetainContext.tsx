@@ -37,7 +37,6 @@ type RetainedScenes = {
   };
 };
 
-
 export function useRetainContext(
   state: StackNavigationState<ParamListBase>,
   navigation: NativeStackNavigationHelpers,
@@ -87,8 +86,10 @@ export function useRetainContext(
         }
 
         const index = state.routes.findIndex((r) => r.key === key);
-        const routes = index !== -1
-        ? state.routes.slice(0, index + 1) : state.routes.slice();
+        const routes =
+          index !== -1
+            ? state.routes.slice(0, index + 1)
+            : state.routes.slice();
         if (index === -1) {
           routes.push(route);
         }
@@ -108,13 +109,10 @@ export function useRetainContext(
     []
   );
 
-  const routeKeys = state.routes.reduce(
-    (map, route) => {
-      map[route.key] = true;
-      return map
-    },
-    {} as { [key: string]: true }
-  );
+  const routeKeys = state.routes.reduce((map, route) => {
+    map[route.key] = true;
+    return map;
+  }, {} as { [key: string]: true });
 
   // Routes that were marked as 'retain' and have been removed from the stack.
   const hiddenRoutes: Route<any>[] = [];
@@ -126,5 +124,10 @@ export function useRetainContext(
     }
   });
 
-  return { retainContext, hiddenRoutes, hiddenDescriptors, };
+  return {
+    retainContext,
+    hiddenRoutes,
+    hiddenDescriptors,
+    retainedKeys: Object.keys(retainedScenes),
+  };
 }
