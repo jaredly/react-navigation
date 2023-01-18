@@ -246,6 +246,7 @@ const SceneView = ({
   return (
     <Screen
       key={route.key}
+      hidden={hidden}
       enabled
       style={StyleSheet.absoluteFill}
       customAnimationOnSwipe={customAnimationOnGesture}
@@ -372,15 +373,24 @@ function NativeStackViewInner({ state, navigation, descriptors }: Props) {
 
   useInvalidPreventRemoveError(descriptors);
 
-  const { retainContext, hiddenRoutes } = useRetainContext(state, navigation);
+  const { retainContext, hiddenRoutes, hiddenDescriptors, } = useRetainContext(
+    state,
+    navigation,
+    descriptors
+  );
+  descriptors = { ...descriptors, ...hiddenDescriptors, };
 
-  const routes = state.routes.concat(hiddenRoutes);
+  const routes = hiddenRoutes.concat(state.routes);
 
   return (
     <RetainContext.Provider value={retainContext}>
       <ScreenStack style={styles.container}>
-        {routes.map((route, index) => {
+        {routes.map((route, offsetIndex) => {
+          const index = offsetIndex - hiddenRoutes.length;
           const descriptor = descriptors[route.key];
+          if (!descriptor) {
+            console.error(route.key, Object.keys(descriptors), hiddenDescriptors, state.routes, hiddenRoutes);
+          }
           const isFocused = state.index === index;
           const previousKey = state.routes[index - 1]?.key;
           const nextKey = state.routes[index + 1]?.key;
@@ -388,6 +398,8 @@ function NativeStackViewInner({ state, navigation, descriptors }: Props) {
             ? descriptors[previousKey]
             : undefined;
           const nextDescriptor = nextKey ? descriptors[nextKey] : undefined;
+
+          console.log('Rendering a SceneView', route.key, index >= state.routes.length)
 
           return (
             <SceneView
@@ -426,7 +438,7 @@ function NativeStackViewInner({ state, navigation, descriptors }: Props) {
                   target: state.key,
                 });
 
-                setNextDismissedKey(route.key);
+                // setNextDismissedKey(route.key);
               }}
               onHeaderBackButtonClicked={() => {
                 navigation.dispatch({
